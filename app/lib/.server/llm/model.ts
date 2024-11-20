@@ -6,7 +6,6 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { ollama } from 'ollama-ai-provider';
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { mistral } from '@ai-sdk/mistral';
 import { createMistral } from '@ai-sdk/mistral';
 
 export function getAnthropicModel(apiKey: string, model: string) {
@@ -41,9 +40,9 @@ export function getMistralModel(apiKey: string, model: string) {
 }
 
 export function getGoogleModel(apiKey: string, model: string) {
-  const google = createGoogleGenerativeAI(
+  const google = createGoogleGenerativeAI({
     apiKey,
-  );
+  });
 
   return google(model);
 }
@@ -51,6 +50,15 @@ export function getGoogleModel(apiKey: string, model: string) {
 export function getGroqModel(apiKey: string, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api.groq.com/openai/v1',
+    apiKey,
+  });
+
+  return openai(model);
+}
+
+export function getHuggingFaceModel(apiKey: string, model: string) {
+  const openai = createOpenAI({
+    baseURL: 'https://api-inference.huggingface.co/v1/',
     apiKey,
   });
 
@@ -83,6 +91,15 @@ export function getOpenRouterModel(apiKey: string, model: string) {
   return openRouter.chat(model);
 }
 
+export function getLMStudioModel(baseURL: string, model: string) {
+  const lmstudio = createOpenAI({
+    baseUrl: `${baseURL}/v1`,
+    apiKey: "",
+  });
+
+  return lmstudio(model);
+}
+
 export function getXAIModel(apiKey: string, model: string) {
   const openai = createOpenAI({
     baseURL: 'https://api.x.ai/v1',
@@ -102,16 +119,20 @@ export function getModel(provider: string, model: string, env: Env, apiKeys?: Re
       return getOpenAIModel(apiKey, model);
     case 'Groq':
       return getGroqModel(apiKey, model);
+    case 'HuggingFace':
+      return getHuggingFaceModel(apiKey, model);
     case 'OpenRouter':
       return getOpenRouterModel(apiKey, model);
     case 'Google':
-      return getGoogleModel(apiKey, model)
+      return getGoogleModel(apiKey, model);
     case 'OpenAILike':
       return getOpenAILikeModel(baseURL,apiKey, model);
     case 'Deepseek':
-      return getDeepseekModel(apiKey, model)
+      return getDeepseekModel(apiKey, model);
     case 'Mistral':
       return  getMistralModel(apiKey, model);
+    case 'LMStudio':
+      return getLMStudioModel(baseURL, model);
     case 'xAI':
       return getXAIModel(apiKey, model);
     default:
